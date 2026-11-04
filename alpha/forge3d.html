@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameForge Ω — Forge3D Viewport</title>
+  <style>
+    body { margin: 0; background: #0a0a12; color: #e0e0ff; font-family: system-ui, sans-serif; }
+    #info { position: absolute; top: 12px; left: 12px; z-index: 10; background: rgba(10,10,20,0.8); padding: 12px; border-radius: 8px; max-width: 320px; font-size: 13px; }
+    #info h1 { margin: 0 0 6px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h1>Forge3D — Viewport Alpha</h1>
+    <div>World is source of truth. Renderer is one view.</div>
+    <div style="margin-top:8px; color:#a0a0c0; font-size:12px;">Orbit with mouse · Scroll to zoom</div>
+  </div>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a12);
+    scene.fog = new THREE.Fog(0x0a0a12, 30, 100);
+
+    const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
+    camera.position.set(12, 8, 16);
+
+    const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    scene.add(new THREE.AmbientLight(0x404060, 0.6));
+    const key = new THREE.DirectionalLight(0xffffff, 0.9);
+    key.position.set(10, 20, 10);
+    scene.add(key);
+
+    // Ground / terrain proxy
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(40, 40, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0x1a3a2a, roughness: 0.8 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    // Player
+    const player = new THREE.Mesh(
+      new THREE.SphereGeometry(0.6, 24, 24),
+      new THREE.MeshStandardMaterial({ color: 0x58a6ff, emissive: 0x58a6ff, emissiveIntensity: 0.3 })
+    );
+    player.position.set(0, 0.6, 0);
+    scene.add(player);
+
+    // Collectibles
+    for (let i = 0; i < 5; i++) {
+      const c = new THREE.Mesh(
+        new THREE.SphereGeometry(0.35, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xf0c040, emissive: 0xf0c040, emissiveIntensity: 0.2 })
+      );
+      c.position.set((Math.random()-0.5)*16, 0.4, (Math.random()-0.5)*16);
+      scene.add(c);
+    }
+
+    // Portal
+    const portal = new THREE.Mesh(
+      new THREE.TorusGeometry(1.2, 0.15, 16, 48),
+      new THREE.MeshBasicMaterial({ color: 0x58a6ff })
+    );
+    portal.position.set(8, 1.2, -6);
+    scene.add(portal);
+
+    // NPC
+    const npc = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.4, 0.8, 8, 16),
+      new THREE.MeshStandardMaterial({ color: 0xff6688 })
+    );
+    npc.position.set(-4, 1.2, 3);
+    scene.add(npc);
+
+    const grid = new THREE.GridHelper(40, 40, 0x223344, 0x112233);
+    scene.add(grid);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      portal.rotation.y += 0.01;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
+</html>
