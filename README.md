@@ -44,13 +44,13 @@ Monarch Sovereign Fabric (ExaForge · Vault · Veritas Mesh · XTAX · PBA · DI
 |--------|----------------|--------|
 | **ForgeCore** | World state, ECS, events, deterministic simulation, prompt translator | `gameforge/core/` |
 | **ForgeGeometry** | LOCS topology, spatial reasoning, procedural terrain | `gameforge/geometry/` |
-| **ForgeRender** | Browser graphics, materials, lighting | `alpha/forge3d.html` |
+| **ForgeRender** | Browser graphics, materials, lighting, XR adapter | `alpha/forge3d.html`, `gameforge/render/` |
 | **ForgeMind** | SENTIUM NPCs, goals, memory, dialogue trees | `gameforge/mind/` |
 | **ForgePhysics** | Rigid-body, collision | `gameforge/physics/` |
-| **ForgeStudio** | Editor, scripting, graph, cinematic authoring | `alpha/` + `gameforge/script/`, `gameforge/cinema/` |
-| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing | `gameforge/fabric/` |
+| **ForgeStudio** | Editor, scripting, graph, cinematic authoring, Sophia planner | `alpha/`, `gameforge/script/`, `gameforge/cinema/`, `gameforge/sophia/` |
+| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing, assets | `gameforge/fabric/`, `gameforge/assets/` |
 
-MR7 cartridge architecture: each world declares the cartridges it needs.
+Additional: Deterministic runtime (`gameforge/runtime/`), MR7 cartridges (`gameforge/cartridges/`).
 
 ## Creation Pipeline
 
@@ -75,14 +75,18 @@ Builds the Carolina Valley WorldSpec, instantiates a SENTIUM NPC, and produces a
 
 ## Additional Capabilities
 
-- Prompt → WorldSpec translator (`gameforge.core.prompt`)
-- Export adapters for web and Godot descriptors (`gameforge.fabric.export`)
-- Multiplayer session stub (`gameforge.fabric.multiplayer`)
-- Publishing / marketplace catalog (`gameforge.fabric.publish`)
-- NPC dialogue trees (`gameforge.mind.dialogue`)
-- CI workflow (`.github/workflows/ci.yml`)
+- Prompt → WorldSpec translator and Sophia planner (creator authorization required)
+- Deterministic World Runtime with event handlers
+- MR7 cartridge registry with dependency resolution
+- Export adapters (web, Godot descriptor)
+- Multiplayer session stub
+- Publishing / marketplace catalog
+- NPC dialogue trees
+- XR adapter stub
+- Asset pipeline with content hashing
+- CI workflow
 
-See `docs/EXPORT_AND_PUBLISH.md`.
+See `docs/RUNTIME.md` and `docs/EXPORT_AND_PUBLISH.md`.
 
 ## Integration
 
@@ -92,9 +96,9 @@ See `docs/` for architecture, integration notes, and roadmap.
 
 ## Current Maturity
 
-All seven native systems have runnable modules. Two browser prototypes, a reference world, prompt translator, export adapters, multiplayer stub, publishing catalog, and dialogue trees exist. Tests cover core and advanced systems. CI is configured.
+All seven native systems plus runtime, cartridges, Sophia planner, XR stub, and asset pipeline have runnable modules. Two browser prototypes, a reference world, and comprehensive tests exist. CI is configured.
 
-Full production features (connected Sophia model, production networking, marketplace UI, WebGPU path, complete Godot/Unreal project generation) remain future work.
+Full production features (connected external Sophia model, production networking, marketplace UI, full WebXR, complete Godot/Unreal project generation) remain future work.
 
 ## License
 
