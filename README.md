@@ -42,13 +42,13 @@ Monarch Sovereign Fabric (ExaForge · Vault · Veritas Mesh · XTAX · PBA · DI
 
 | System | Responsibility | Module |
 |--------|----------------|--------|
-| **ForgeCore** | World state, ECS, events, deterministic simulation | `gameforge/core/` |
+| **ForgeCore** | World state, ECS, events, deterministic simulation, prompt translator | `gameforge/core/` |
 | **ForgeGeometry** | LOCS topology, spatial reasoning, procedural terrain | `gameforge/geometry/` |
 | **ForgeRender** | Browser graphics, materials, lighting | `alpha/forge3d.html` |
-| **ForgeMind** | SENTIUM NPCs, goals, memory | `gameforge/mind/` |
+| **ForgeMind** | SENTIUM NPCs, goals, memory, dialogue trees | `gameforge/mind/` |
 | **ForgePhysics** | Rigid-body, collision | `gameforge/physics/` |
 | **ForgeStudio** | Editor, scripting, graph, cinematic authoring | `alpha/` + `gameforge/script/`, `gameforge/cinema/` |
-| **ForgeFabric** | Compilation, builds, versioning, distribution | `gameforge/fabric/` |
+| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing | `gameforge/fabric/` |
 
 MR7 cartridge architecture: each world declares the cartridges it needs.
 
@@ -73,6 +73,17 @@ python examples/carolina_valley.py
 
 Builds the Carolina Valley WorldSpec, instantiates a SENTIUM NPC, and produces a Fabric build manifest.
 
+## Additional Capabilities
+
+- Prompt → WorldSpec translator (`gameforge.core.prompt`)
+- Export adapters for web and Godot descriptors (`gameforge.fabric.export`)
+- Multiplayer session stub (`gameforge.fabric.multiplayer`)
+- Publishing / marketplace catalog (`gameforge.fabric.publish`)
+- NPC dialogue trees (`gameforge.mind.dialogue`)
+- CI workflow (`.github/workflows/ci.yml`)
+
+See `docs/EXPORT_AND_PUBLISH.md`.
+
 ## Integration
 
 Builds on earlier SophiaL-ToE-GameForge, monoreality orchestration, CIA-1 continuity concepts, Young Realms of Becoming, and SENTIUM/Sophia systems.
@@ -81,9 +92,9 @@ See `docs/` for architecture, integration notes, and roadmap.
 
 ## Current Maturity
 
-All seven native systems have runnable modules. Two browser prototypes and a reference world exist. Tests cover core systems.
+All seven native systems have runnable modules. Two browser prototypes, a reference world, prompt translator, export adapters, multiplayer stub, publishing catalog, and dialogue trees exist. Tests cover core and advanced systems. CI is configured.
 
-Full production features (connected Sophia model, multiplayer, marketplace, WebGPU path, Godot/Unreal export) remain future work.
+Full production features (connected Sophia model, production networking, marketplace UI, WebGPU path, complete Godot/Unreal project generation) remain future work.
 
 ## License
 
