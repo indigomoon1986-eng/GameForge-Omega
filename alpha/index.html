@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameForge Ω — Studio Alpha 0.1</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0d1117; color: #e6edf3; font-family: system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    header { padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; font-size: 16px; }
+    .panes { display: flex; flex: 1; overflow: hidden; }
+    .pane { border-right: 1px solid #30363d; overflow: auto; padding: 12px; }
+    .pane:last-child { border-right: none; }
+    #composer { width: 280px; }
+    #viewport { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #010409; }
+    #graph { width: 240px; }
+    #inspector { width: 260px; }
+    canvas { background: #0a1628; border: 1px solid #30363d; }
+    textarea, input, button { background: #21262d; color: #e6edf3; border: 1px solid #30363d; border-radius: 4px; padding: 6px; font-size: 13px; }
+    button { cursor: pointer; }
+    button:hover { background: #30363d; }
+    .entity-list { font-size: 12px; }
+    .entity-list div { padding: 4px; cursor: pointer; border-radius: 3px; }
+    .entity-list div:hover { background: #21262d; }
+    .entity-list .selected { background: #1f6feb; }
+    #status { font-size: 12px; color: #8b949e; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GameForge Ω — Studio Alpha 0.1</h1>
+    <div id="status">Local-first · World is source of truth</div>
+  </header>
+  <div class="panes">
+    <div class="pane" id="composer">
+      <h3>Sophia Composer</h3>
+      <textarea id="prompt" rows="6" style="width:100%" placeholder="Describe a world... e.g. 'Add a player and three collectibles and one enemy and a portal'">Add a player and three collectibles and one enemy and a portal</textarea>
+      <button id="generate" style="margin-top:8px; width:100%">Generate / Update World</button>
+      <hr style="border-color:#30363d; margin:12px 0">
+      <button id="export" style="width:100%">Export JSON</button>
+      <button id="import" style="width:100%; margin-top:4px">Import JSON</button>
+      <input type="file" id="file" style="display:none" accept=".json">
+    </div>
+    <div class="pane" id="viewport">
+      <canvas id="canvas" width="640" height="480"></canvas>
+      <div style="margin-top:8px; font-size:12px; color:#8b949e">Arrow keys / WASD to move · Collect items · Avoid enemy · Reach portal</div>
+    </div>
+    <div class="pane" id="graph">
+      <h3>World Graph</h3>
+      <div id="entityList" class="entity-list"></div>
+    </div>
+    <div class="pane" id="inspector">
+      <h3>Inspector</h3>
+      <div id="inspectorContent">Select an entity</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let world = {
+      title: "Alpha World",
+      entities: [],
+      player: { x: 320, y: 240, r: 12 },
+      collectibles: [],
+      enemies: [],
+      portal: null,
+      score: 0,
+      won: false,
+      lost: false
+    };
+    let selectedId = null;
+
+    function parsePrompt(text) {
+      const lower = text.toLowerCase();
+      world.entities = [];
+      world.collectibles = [];
+      world.enemies = [];
+      world.portal = null;
+      world.score = 0;
+      world.won = false;
+      world.lost = false;
+      world.player = { x: 320, y: 240, r: 12 };
+
+      world.entities.push({ id: "player", type: "player", position: [320, 240] });
+
+      const collCount = (lower.match(/(\d+)\s*collectible/) || [])[1] || 3;
+      for (let i = 0; i < Number(collCount); i++) {
+        const x = 100 + Math.random() * 440;
+        const y = 80 + Math.random() * 320;
+        world.collectibles.push({ id: "c" + i, x, y, r: 8 });
+        world.entities.push({ id: "c" + i, type: "collectible", position: [x, y] });
+      }
+
+      if (lower.includes("enemy")) {
+        const x = 200 + Math.random() * 200;
+        const y = 150 + Math.random() * 150;
+        world.enemies.push({ id: "e0", x, y, r: 10, vx: 1.2, vy: 0.8 });
+        world.entities.push({ id: "e0", type: "enemy", position: [x, y] });
+      }
+
+      if (lower.includes("portal")) {
+        world.portal = { id: "portal", x: 560, y: 80, r: 18 };
+        world.entities.push({ id: "portal", type: "portal", position: [560, 80] });
+      }
+
+      renderList();
+      updateInspector();
+    }
+
+    function renderList() {
+      const list = document.getElementById('entityList');
+      list.innerHTML = world.entities.map(e =>
+        `<div data-id="${e.id}" class="${selectedId===e.id?'selected':''}">${e.type}: ${e.id}</div>`
+      ).join('');
+      list.querySelectorAll('div').forEach(d => {
+        d.onclick = () => { selectedId = d.dataset.id; renderList(); updateInspector(); };
+      });
+    }
+
+    function updateInspector() {
+      const el = document.getElementById('inspectorContent');
+      if (!selectedId) { el.innerHTML = "Select an entity"; return; }
+      const ent = world.entities.find(e => e.id === selectedId);
+      if (!ent) return;
+      el.innerHTML = `<strong>${ent.type}</strong><br>id: ${ent.id}<br>pos: ${ent.position.map(v=>v.toFixed(0)).join(', ')}`;
+    }
+
+    function draw() {
+      ctx.fillStyle = '#0a1628';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // grid
+      ctx.strokeStyle = '#1c2a40';
+      for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+      }
+
+      // collectibles
+      world.collectibles.forEach(c => {
+        ctx.fillStyle = '#f0c040';
+        ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+      });
+
+      // portal
+      if (world.portal) {
+        ctx.strokeStyle = '#58a6ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(world.portal.x, world.portal.y, world.portal.r, 0, Math.PI*2); ctx.stroke();
+      }
+
+      // enemies
+      world.enemies.forEach(e => {
+        ctx.fillStyle = '#f85149';
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+      });
+
+      // player
+      ctx.fillStyle = world.won ? '#3fb950' : world.lost ? '#f85149' : '#58a6ff';
+      ctx.beginPath(); ctx.arc(world.player.x, world.player.y, world.player.r, 0, Math.PI*2); ctx.fill();
+
+      // HUD
+      ctx.fillStyle = '#e6edf3';
+      ctx.font = '14px system-ui';
+      ctx.fillText(`Score: ${world.score} / ${world.collectibles.length + world.score}`, 10, 20);
+      if (world.won) ctx.fillText('WIN — Portal reached', 10, 40);
+      if (world.lost) ctx.fillText('LOST — Caught by enemy', 10, 40);
+    }
+
+    function update() {
+      if (world.won || world.lost) return;
+
+      // simple enemy AI
+      world.enemies.forEach(e => {
+        e.x += e.vx; e.y += e.vy;
+        if (e.x < 20 || e.x > canvas.width-20) e.vx *= -1;
+        if (e.y < 20 || e.y > canvas.height-20) e.vy *= -1;
+        const dx = e.x - world.player.x, dy = e.y - world.player.y;
+        if (Math.hypot(dx,dy) < e.r + world.player.r) world.lost = true;
+      });
+
+      // collect
+      world.collectibles = world.collectibles.filter(c => {
+        const dx = c.x - world.player.x, dy = c.y - world.player.y;
+        if (Math.hypot(dx,dy) < c.r + world.player.r) {
+          world.score++;
+          world.entities = world.entities.filter(en => en.id !== c.id);
+          return false;
+        }
+        return true;
+      });
+
+      // portal
+      if (world.portal && world.score >= 3) {
+        const dx = world.portal.x - world.player.x, dy = world.portal.y - world.player.y;
+        if (Math.hypot(dx,dy) < world.portal.r + world.player.r) world.won = true;
+      }
+    }
+
+    const keys = {};
+    document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    function movePlayer() {
+      if (world.won || world.lost) return;
+      const speed = 3;
+      if (keys['arrowup'] || keys['w']) world.player.y -= speed;
+      if (keys['arrowdown'] || keys['s']) world.player.y += speed;
+      if (keys['arrowleft'] || keys['a']) world.player.x -= speed;
+      if (keys['arrowright'] || keys['d']) world.player.x += speed;
+      world.player.x = Math.max(20, Math.min(canvas.width-20, world.player.x));
+      world.player.y = Math.max(20, Math.min(canvas.height-20, world.player.y));
+      // sync entity
+      const p = world.entities.find(e => e.id === 'player');
+      if (p) p.position = [world.player.x, world.player.y];
+    }
+
+    function loop() {
+      movePlayer();
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    document.getElementById('generate').onclick = () => {
+      parsePrompt(document.getElementById('prompt').value);
+    };
+
+    document.getElementById('export').onclick = () => {
+      const data = JSON.stringify({
+        title: world.title,
+        entities: world.entities,
+        score: world.score,
+        won: world.won,
+        lost: world.lost
+      }, null, 2);
+      const blob = new Blob([data], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'worldspec.json';
+      a.click();
+    };
+
+    document.getElementById('import').onclick = () => document.getElementById('file').click();
+    document.getElementById('file').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          world.title = data.title || world.title;
+          world.entities = data.entities || [];
+          // simple rehydrate
+          world.collectibles = world.entities.filter(e => e.type==='collectible').map(e => ({id:e.id, x:e.position[0], y:e.position[1], r:8}));
+          world.enemies = world.entities.filter(e => e.type==='enemy').map(e => ({id:e.id, x:e.position[0], y:e.position[1], r:10, vx:1, vy:0.5}));
+          const p = world.entities.find(e => e.type==='portal');
+          world.portal = p ? {id:p.id, x:p.position[0], y:p.position[1], r:18} : null;
+          const pl = world.entities.find(e => e.type==='player');
+          if (pl) world.player = {x:pl.position[0], y:pl.position[1], r:12};
+          renderList();
+        } catch(err) { alert('Invalid JSON'); }
+      };
+      reader.readAsText(file);
+    };
+
+    // initial world
+    parsePrompt(document.getElementById('prompt').value);
+    loop();
+  </script>
+</body>
+</html>
