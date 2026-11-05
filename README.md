@@ -48,9 +48,24 @@ Monarch Sovereign Fabric (ExaForge · Vault · Veritas Mesh · XTAX · PBA · DI
 | **ForgeMind** | SENTIUM NPCs, goals, memory, dialogue trees | `gameforge/mind/` |
 | **ForgePhysics** | Rigid-body, collision + experimental adapter (labeled) | `gameforge/physics/` |
 | **ForgeStudio** | Editor, scripting, graph, cinematic authoring, Sophia planner | `alpha/`, `gameforge/script/`, `gameforge/cinema/`, `gameforge/sophia/` |
-| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing, assets, Godot skeleton | `gameforge/fabric/`, `gameforge/assets/` |
+| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing, assets | `gameforge/fabric/`, `gameforge/assets/` |
 
-Additional: Deterministic runtime (`gameforge/runtime/`), MR7 cartridges (`gameforge/cartridges/`), CLI (`gameforge/cli.py`).
+Additional: Deterministic runtime (`gameforge/runtime/`), MR7 cartridges (`gameforge/cartridges/`), CLI (`gameforge/cli.py`), **engine integration** (`gameforge/engines/`).
+
+## Game Engine Integration
+
+Semantic WorldSpec is authoritative. Engines are views:
+
+- **Godot 4** — `GodotAdapter` produces project skeleton + main.gd snippet.
+- **Unreal Engine 5** — `UnrealAdapter` produces actor descriptors (Nanite/Lumen noted).
+
+```python
+from gameforge.engines.registry import EngineRegistry
+reg = EngineRegistry()
+export = reg.get("godot").export(spec)  # or "unreal"
+```
+
+See `docs/ENGINE_INTEGRATION.md`.
 
 ## Creation Pipeline
 
@@ -84,7 +99,7 @@ python -m gameforge.cli validate worldspec.json
 - WorldSpec validation with policy warnings
 - Deterministic World Runtime with event handlers
 - MR7 cartridge registry with dependency resolution
-- Export adapters (web, Godot skeleton)
+- Export adapters (web, Godot skeleton, Unreal actor descriptors)
 - Multiplayer session stub
 - Publishing / marketplace catalog
 - NPC dialogue trees
@@ -93,7 +108,7 @@ python -m gameforge.cli validate worldspec.json
 - Experimental physics adapter (explicitly labeled, disabled by default)
 - CI workflow
 
-See `docs/RUNTIME.md`, `docs/EXPORT_AND_PUBLISH.md`, and `docs/ROADMAP.md`.
+See `docs/RUNTIME.md`, `docs/EXPORT_AND_PUBLISH.md`, `docs/ENGINE_INTEGRATION.md`, and `docs/ROADMAP.md`.
 
 ## Integration
 
@@ -101,9 +116,9 @@ Builds on earlier SophiaL-ToE-GameForge, monoreality orchestration, CIA-1 contin
 
 ## Current Maturity
 
-Coherent **E2-level creator platform foundation**. All seven native systems plus runtime, cartridges, Sophia planner, validation, CLI, experimental physics adapter, XR stub, asset pipeline, export adapters, multiplayer stub, and publishing catalog are implemented. Two browser prototypes and a reference world exist. Tests and CI are in place.
+Coherent **E2-level creator platform foundation**. All seven native systems plus runtime, cartridges, Sophia planner, validation, CLI, experimental physics adapter, XR stub, asset pipeline, export adapters, multiplayer stub, publishing catalog, and **Godot/Unreal engine adapters** are implemented. Two browser prototypes and a reference world exist. Tests and CI are in place.
 
-Full production features (connected external Sophia model, production networking, marketplace UI, full WebXR, complete Godot/Unreal project generation, WebGPU path) remain future work.
+Full production features (connected external Sophia model, production networking, marketplace UI, full WebXR, complete Godot/Unreal project file generation, WebGPU path) remain future work.
 
 ## License
 
