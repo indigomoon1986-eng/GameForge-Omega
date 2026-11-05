@@ -1,10 +1,15 @@
-"""Registry of available engine adapters."""
+"""Registry of available engine adapters.
+
+Includes proprietary Leakean variants (experimental).
+"""
 
 from __future__ import annotations
 from typing import Dict
 from .base import EngineAdapter
 from .godot import GodotAdapter
 from .unreal import UnrealAdapter
+from .leakean_godot import LeakeanGodotAdapter
+from .leakean_unreal import LeakeanUnrealAdapter
 
 
 class EngineRegistry:
@@ -12,6 +17,8 @@ class EngineRegistry:
         self.adapters: Dict[str, EngineAdapter] = {
             "godot": GodotAdapter(),
             "unreal": UnrealAdapter(),
+            "leakean_godot": LeakeanGodotAdapter(),
+            "leakean_unreal": LeakeanUnrealAdapter(),
         }
 
     def get(self, name: str) -> EngineAdapter:
