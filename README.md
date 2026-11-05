@@ -42,15 +42,15 @@ Monarch Sovereign Fabric (ExaForge · Vault · Veritas Mesh · XTAX · PBA · DI
 
 | System | Responsibility | Module |
 |--------|----------------|--------|
-| **ForgeCore** | World state, ECS, events, deterministic simulation, prompt translator | `gameforge/core/` |
+| **ForgeCore** | World state, ECS, events, prompt translator, validation | `gameforge/core/` |
 | **ForgeGeometry** | LOCS topology, spatial reasoning, procedural terrain | `gameforge/geometry/` |
 | **ForgeRender** | Browser graphics, materials, lighting, XR adapter | `alpha/forge3d.html`, `gameforge/render/` |
 | **ForgeMind** | SENTIUM NPCs, goals, memory, dialogue trees | `gameforge/mind/` |
-| **ForgePhysics** | Rigid-body, collision | `gameforge/physics/` |
+| **ForgePhysics** | Rigid-body, collision + experimental adapter (labeled) | `gameforge/physics/` |
 | **ForgeStudio** | Editor, scripting, graph, cinematic authoring, Sophia planner | `alpha/`, `gameforge/script/`, `gameforge/cinema/`, `gameforge/sophia/` |
-| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing, assets | `gameforge/fabric/`, `gameforge/assets/` |
+| **ForgeFabric** | Compilation, builds, export, multiplayer stub, publishing, assets, Godot skeleton | `gameforge/fabric/`, `gameforge/assets/` |
 
-Additional: Deterministic runtime (`gameforge/runtime/`), MR7 cartridges (`gameforge/cartridges/`).
+Additional: Deterministic runtime (`gameforge/runtime/`), MR7 cartridges (`gameforge/cartridges/`), CLI (`gameforge/cli.py`).
 
 ## Creation Pipeline
 
@@ -71,34 +71,39 @@ Both are local-first and require no installation.
 python examples/carolina_valley.py
 ```
 
-Builds the Carolina Valley WorldSpec, instantiates a SENTIUM NPC, and produces a Fabric build manifest.
+## CLI
+
+```bash
+python -m gameforge.cli prompt "Add a player and three collectibles and a portal"
+python -m gameforge.cli validate worldspec.json
+```
 
 ## Additional Capabilities
 
 - Prompt → WorldSpec translator and Sophia planner (creator authorization required)
+- WorldSpec validation with policy warnings
 - Deterministic World Runtime with event handlers
 - MR7 cartridge registry with dependency resolution
-- Export adapters (web, Godot descriptor)
+- Export adapters (web, Godot skeleton)
 - Multiplayer session stub
 - Publishing / marketplace catalog
 - NPC dialogue trees
 - XR adapter stub
 - Asset pipeline with content hashing
+- Experimental physics adapter (explicitly labeled, disabled by default)
 - CI workflow
 
-See `docs/RUNTIME.md` and `docs/EXPORT_AND_PUBLISH.md`.
+See `docs/RUNTIME.md`, `docs/EXPORT_AND_PUBLISH.md`, and `docs/ROADMAP.md`.
 
 ## Integration
 
 Builds on earlier SophiaL-ToE-GameForge, monoreality orchestration, CIA-1 continuity concepts, Young Realms of Becoming, and SENTIUM/Sophia systems.
 
-See `docs/` for architecture, integration notes, and roadmap.
-
 ## Current Maturity
 
-All seven native systems plus runtime, cartridges, Sophia planner, XR stub, and asset pipeline have runnable modules. Two browser prototypes, a reference world, and comprehensive tests exist. CI is configured.
+Coherent **E2-level creator platform foundation**. All seven native systems plus runtime, cartridges, Sophia planner, validation, CLI, experimental physics adapter, XR stub, asset pipeline, export adapters, multiplayer stub, and publishing catalog are implemented. Two browser prototypes and a reference world exist. Tests and CI are in place.
 
-Full production features (connected external Sophia model, production networking, marketplace UI, full WebXR, complete Godot/Unreal project generation) remain future work.
+Full production features (connected external Sophia model, production networking, marketplace UI, full WebXR, complete Godot/Unreal project generation, WebGPU path) remain future work.
 
 ## License
 
