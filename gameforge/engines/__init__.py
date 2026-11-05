@@ -10,6 +10,7 @@ from .godot import GodotAdapter
 from .unreal import UnrealAdapter
 from .leakean_godot import LeakeanGodotAdapter
 from .leakean_unreal import LeakeanUnrealAdapter
+from .leakean import LeakeanEngine
 from .registry import EngineRegistry
 
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     "UnrealAdapter",
     "LeakeanGodotAdapter",
     "LeakeanUnrealAdapter",
+    "LeakeanEngine",
     "EngineRegistry",
 ]
