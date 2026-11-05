@@ -5,7 +5,7 @@
 
 ## Overview
 
-GameForge Ω includes proprietary Leakean variants of major engines that embed research constructs from Leakean Physics and CIA-1 continuity architecture:
+GameForge Ω includes full proprietary Leakean versions of Godot and Unreal that embed research constructs from Leakean Physics and CIA-1 continuity architecture:
 
 - Continuity Tensor Ξ (outer-product research proxy)
 - SCI (Subjective Continuity Index) — functional scoring only
@@ -16,10 +16,23 @@ GameForge Ω includes proprietary Leakean variants of major engines that embed r
 
 ## Available Adapters
 
-| Engine | Adapter | Key Research Features |
-|--------|---------|-----------------------|
-| **Leakean Godot** | `LeakeanGodotAdapter` | Continuity Tensor flag, SCI embedding, topology markers, curvature cartridge |
-| **Leakean Unreal** | `LeakeanUnrealAdapter` | Actor-level Ξ/SCI metadata, Nanite/Lumen + research features |
+| Engine | Adapter | Key Research Features | Output |
+|--------|---------|-----------------------|--------|
+| **Leakean Godot** | `LeakeanGodotAdapter` | Continuity Tensor flag, SCI embedding, topology markers, curvature cartridge | Full project skeleton (`project.godot`, `main.tscn`, `main.gd`) |
+| **Leakean Unreal** | `LeakeanUnrealAdapter` | Actor-level Ξ/SCI metadata, Nanite/Lumen + research features | Structured actor + level descriptors |
+
+## Unified Interface
+
+```python
+from gameforge.engines.leakean import LeakeanEngine
+from gameforge.core.worldspec import WorldSpec, Entity
+
+spec = WorldSpec(title="Test", entities=[Entity(id="p", type="player")])
+eng = LeakeanEngine()
+
+godot_export = eng.export(spec, target="godot")
+unreal_export = eng.export(spec, target="unreal")
+```
 
 ## Physics Module
 
@@ -29,25 +42,10 @@ GameForge Ω includes proprietary Leakean variants of major engines that embed r
 - Computes research proxies for Ξ and SCI.
 - Curvature influence is a labeled research parameter only.
 
-## Usage
-
-```python
-from gameforge.engines.registry import EngineRegistry
-from gameforge.physics.leakean import LeakeanPhysicsEngine, LeakeanBody
-
-reg = EngineRegistry()
-export = reg.get("leakean_godot").export(spec)  # or leakean_unreal
-
-eng = LeakeanPhysicsEngine()
-eng.enable()  # creator authorization
-eng.add(LeakeanBody(id="subject", x=0.0, curvature=1.0))
-eng.step()
-```
-
 ## Boundaries
 
 - Computational continuity ≠ personal identity continuity ≠ conscious immortality.
 - Archive can preserve the song; it does not thereby become the singer.
 - All Leakean extensions are experimental and must remain labeled as such.
 
-See also `docs/ENGINE_INTEGRATION.md` and CIA-1 documentation in related repositories.
+See also `docs/ENGINE_INTEGRATION.md`.
